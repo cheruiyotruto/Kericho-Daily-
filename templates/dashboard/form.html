@@ -1,0 +1,27 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}{{ heading }}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel dashboard-form">
+  <div class="dashboard-panel__head"><h2>{{ heading }}</h2><a href="{% url back_url %}" class="btn btn--outline btn--small">Back</a></div>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="field {% if field.name == 'body' or field.name == 'html_snippet' or field.name == 'description' or field.name == 'bio' %}field--full{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <label style="display:flex;align-items:center;gap:8px;font-weight:600;">{{ field }} {{ field.label }}</label>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          {% endif %}
+          {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+          {% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions"><button type="submit" class="btn btn--primary">Save</button></div>
+  </form>
+</div>
+{% endblock %}

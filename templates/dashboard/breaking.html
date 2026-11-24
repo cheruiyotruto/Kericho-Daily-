@@ -1,0 +1,31 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Breaking news ticker{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-columns">
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Active and archived items</h2></div>
+    <div style="overflow-x:auto;"><table class="data-table">
+      <thead><tr><th>Headline</th><th>Source</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for item in items %}
+        <tr><td>{{ item.headline|truncatechars:68 }}</td><td>{{ item.article.title|default:"Custom link"|truncatechars:34 }}</td><td><span class="status-pill status-pill--{% if item.is_active %}published{% else %}draft{% endif %}">{% if item.is_active %}Active{% else %}Paused{% endif %}</span></td><td>{{ item.expires_at|date:"d M, H:i"|default:"—" }}</td><td><div class="table-actions">
+          <form method="post" action="{% url 'dashboard:breaking_toggle' item.id %}">{% csrf_token %}<button type="submit">{% if item.is_active %}Pause{% else %}Activate{% endif %}</button></form>
+          <form method="post" action="{% url 'dashboard:breaking_delete' item.id %}" data-confirm="Remove this ticker item?">{% csrf_token %}<button type="submit" class="danger">Delete</button></form>
+        </div></td></tr>
+      {% empty %}<tr><td colspan="5" class="empty-state">No breaking news items yet.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+  </div>
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Add ticker item</h2></div>
+    <form method="post" action="{% url 'dashboard:breaking_new' %}">
+      {% csrf_token %}
+      {% for field in form %}<div class="field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}</div>{% endfor %}
+      <button type="submit" class="btn btn--primary">Add to ticker</button>
+    </form>
+    <p class="field-help" style="margin-top:14px;">All demo ticker items are sample notices. Never publish unverified breaking claims.</p>
+  </div>
+</div>
+{% endblock %}

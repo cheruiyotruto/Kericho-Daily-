@@ -1,0 +1,23 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Advertising campaigns{% endblock %}
+
+{% block dashboard_content %}
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-card__label">Campaigns</div><div class="stat-card__value">{{ ads|length }}</div></div>
+  <div class="stat-card"><div class="stat-card__label">Impressions</div><div class="stat-card__value">{{ total_impressions }}</div></div>
+  <div class="stat-card"><div class="stat-card__label">Clicks</div><div class="stat-card__value">{{ total_clicks }}</div></div>
+  <div class="stat-card"><div class="stat-card__label">Booked value (KSh)</div><div class="stat-card__value">{{ revenue|floatformat:0 }}</div></div>
+</div>
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Campaign inventory</h2><a href="{% url 'dashboard:ad_new' %}" class="btn btn--primary btn--small">+ New campaign</a></div>
+  <div style="overflow-x:auto;"><table class="data-table">
+    <thead><tr><th>Campaign</th><th>Placement</th><th>Type</th><th>Schedule</th><th>Impr.</th><th>Clicks</th><th>CTR</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for ad in ads %}
+      <tr><td><strong>{{ ad.name }}</strong><br /><span style="color:var(--muted);font-size:.7rem;">{{ ad.advertiser|default:"Direct" }}</span></td><td>{{ ad.get_placement_display }}</td><td>{{ ad.get_ad_type_display }}</td><td>{{ ad.campaign_start|date:"d M"|default:"Now" }} – {{ ad.campaign_end|date:"d M Y"|default:"Open" }}</td><td>{{ ad.impressions }}</td><td>{{ ad.clicks }}</td><td>{{ ad.ctr }}%</td><td><a href="{% url 'dashboard:ad_edit' ad.id %}">Edit</a></td></tr>
+    {% empty %}<tr><td colspan="8" class="empty-state">No campaigns configured.</td></tr>{% endfor %}
+    </tbody>
+  </table></div>
+</div>
+{% endblock %}

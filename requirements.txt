@@ -1,0 +1,8 @@
+Django>=6.1,<6.2
+Pillow>=11.0
+gunicorn>=23.0
+whitenoise>=6.8
+python-dotenv>=1.0
+redis>=5.0
+psycopg[binary]>=3.2 ; platform_system != "Windows"
+psycopg2-binary>=2.9 ; platform_system == "Windows"

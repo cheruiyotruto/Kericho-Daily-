@@ -1,0 +1,76 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Newsroom overview{% endblock %}
+
+{% block dashboard_content %}
+<div class="stat-grid">
+  <div class="stat-card"><div class="stat-card__label">Published stories</div><div class="stat-card__value">{{ published_articles }}</div><div class="stat-card__hint">of {{ total_articles }} total in your scope</div></div>
+  <div class="stat-card"><div class="stat-card__label">Drafts</div><div class="stat-card__value">{{ draft_articles }}</div><div class="stat-card__hint">{{ scheduled_articles }} scheduled</div></div>
+  <div class="stat-card"><div class="stat-card__label">Article reads</div><div class="stat-card__value">{{ total_views }}</div><div class="stat-card__hint">lifetime sample counter</div></div>
+  <div class="stat-card"><div class="stat-card__label">Newsletter</div><div class="stat-card__value">{{ subscriber_count }}</div><div class="stat-card__hint">active subscribers</div></div>
+</div>
+
+<div class="dashboard-columns">
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Page views — last 7 days</h2><a href="{% url 'dashboard:analytics' %}" class="section__link">Full analytics →</a></div>
+    <div class="chart">
+      {% for point in page_views %}
+        <div class="chart__bar-wrap" title="{{ point.day }}: {{ point.count }} views">
+          <span class="chart__value">{{ point.count }}</span>
+          <div class="chart__bar" style="height:{% widthratio point.count chart_max 100 %}%;"></div>
+          <span class="chart__label">{{ point.day }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Attention</h2></div>
+    <div class="stat-grid" style="grid-template-columns:1fr 1fr;margin-bottom:14px;">
+      <div class="stat-card"><div class="stat-card__label">Pending comments</div><div class="stat-card__value">{{ pending_comments }}</div></div>
+      <div class="stat-card"><div class="stat-card__label">Unread emails</div><div class="stat-card__value">{{ unread_messages }}</div></div>
+    </div>
+    <p style="font-size:.82rem;color:var(--muted);">Active campaigns: <strong>{{ active_ads }}</strong><br />Impressions: <strong>{{ ad_impressions }}</strong> · Clicks: <strong>{{ ad_clicks }}</strong></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+      {% if can_edit_articles %}<a href="{% url 'dashboard:article_new' %}" class="btn btn--primary btn--small">Write article</a>{% endif %}
+      {% if can_moderate %}<a href="{% url 'dashboard:comments' %}" class="btn btn--outline btn--small">Moderate</a>{% endif %}
+      {% if can_manage_ads %}<a href="{% url 'dashboard:ad_new' %}" class="btn btn--outline btn--small">New campaign</a>{% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Recently updated articles</h2><a href="{% url 'dashboard:article_list' %}" class="section__link">Manage all →</a></div>
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr><th>Headline</th><th>Category</th><th>Status</th><th>Author</th><th>Updated</th><th></th></tr></thead>
+      <tbody>
+        {% for article in recent_articles %}
+          <tr>
+            <td><a href="{% url 'dashboard:article_edit' article.id %}">{{ article.title|truncatechars:58 }}</a></td>
+            <td>{{ article.category.name }}</td>
+            <td><span class="status-pill status-pill--{{ article.status }}">{{ article.status }}</span></td>
+            <td>{{ article.author.display_name }}</td>
+            <td>{{ article.updated_at|date:"d M, H:i" }}</td>
+            <td><a href="{{ article.get_absolute_url }}" target="_blank" rel="noopener">View</a></td>
+          </tr>
+        {% empty %}<tr><td colspan="6" class="empty-state">No articles yet. Create your first sample story.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="dashboard-columns">
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Most read</h2></div>
+    <div class="rank-list">
+      {% for article in top_articles %}<div class="rank-item"><span class="rank-item__number">{{ forloop.counter }}</span><div><h4 class="rank-item__title">{{ article.title|truncatechars:70 }}</h4><div class="rank-item__meta">{{ article.views_count }} reads</div></div></div>{% empty %}<p class="empty-state">No readership data yet.</p>{% endfor %}
+    </div>
+  </div>
+  <div class="dashboard-panel">
+    <div class="dashboard-panel__head"><h2>Comments awaiting review</h2>{% if can_moderate %}<a href="{% url 'dashboard:comments' %}" class="section__link">Review →</a>{% endif %}</div>
+    {% for comment in recent_comments %}
+      <div style="border-bottom:1px solid var(--line);padding:8px 0;font-size:.82rem;"><strong>{{ comment.name }}</strong> on <em>{{ comment.article.title|truncatechars:42 }}</em><br /><span style="color:var(--muted);">{{ comment.body|truncatechars:100 }}</span></div>
+    {% empty %}<p class="empty-state">No comments awaiting moderation.</p>{% endfor %}
+  </div>
+</div>
+{% endblock %}

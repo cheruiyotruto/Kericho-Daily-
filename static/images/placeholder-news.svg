@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-label="News image placeholder">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e9efec"/><stop offset="1" stop-color="#cfdcd5"/></linearGradient></defs>
+  <rect width="1200" height="720" fill="url(#g)"/>
+  <g fill="none" stroke="#123B32" stroke-opacity=".22" stroke-width="2">
+    <rect x="150" y="130" width="900" height="460" rx="18"/>
+    <rect x="205" y="195" width="350" height="330" rx="10"/>
+    <path d="M610 210h385M610 265h385M610 320h300M610 420h385M610 475h250"/>
+  </g>
+  <text x="600" y="640" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" fill="#123B32" opacity=".55">KERICHO DAILY</text>
+</svg>

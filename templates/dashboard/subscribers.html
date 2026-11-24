@@ -1,0 +1,15 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Newsletter subscribers{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Subscriber list</h2><div style="display:flex;gap:8px;"><a href="{% url 'dashboard:subscribers_export' %}" class="btn btn--outline btn--small">Export CSV</a></div></div>
+  <form method="get" class="filter-bar" style="margin-bottom:12px;"><select name="status" class="form-select" onchange="this.form.submit()" style="width:auto;"><option value="active" {% if status == 'active' %}selected{% endif %}>Active</option><option value="inactive" {% if status == 'inactive' %}selected{% endif %}>Unsubscribed</option><option value="all" {% if status == 'all' %}selected{% endif %}>All</option></select></form>
+  <div style="overflow-x:auto;"><table class="data-table">
+    <thead><tr><th>Email</th><th>Name</th><th>Source</th><th>Status</th><th>Subscribed</th></tr></thead>
+    <tbody>{% for subscriber in subscribers %}<tr><td><strong>{{ subscriber.email }}</strong></td><td>{{ subscriber.name|default:"—" }}</td><td>{{ subscriber.source }}</td><td><span class="status-pill status-pill--{% if subscriber.is_active %}published{% else %}archived{% endif %}">{% if subscriber.is_active %}Active{% else %}Inactive{% endif %}</span></td><td>{{ subscriber.created_at|date:"d M Y" }}</td></tr>{% empty %}<tr><td colspan="5" class="empty-state">No subscribers in this view.</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if subscribers.has_other_pages %}<nav class="pagination">{% if subscribers.has_previous %}<a href="?page={{ subscribers.previous_page_number }}">← Previous</a>{% endif %}{% if subscribers.has_next %}<a href="?page={{ subscribers.next_page_number }}">Next →</a>{% endif %}</nav>{% endif %}
+</div>
+{% endblock %}

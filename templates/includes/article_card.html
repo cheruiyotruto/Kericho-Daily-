@@ -1,0 +1,21 @@
+{% load news_tags %}<article class="story-card {{ card_class|default:'' }}">
+  <a href="{{ article.get_absolute_url }}" class="story-card__image" aria-label="{{ article.title }}">
+    <img src="{{ article.image_url }}" alt="{{ article.title }}" loading="lazy" decoding="async" />
+    {% if article.is_breaking %}<span class="image-badge image-badge--red">Breaking</span>{% endif %}
+  </a>
+  <div class="story-card__body">
+    <div class="story-card__meta">
+      <a href="{{ article.category.get_absolute_url }}" class="category-tag">{{ article.category.name }}</a>
+      <span class="dot">·</span>
+      <time datetime="{{ article.published_at|date:'c' }}">{{ article.published_at|time_label }}</time>
+    </div>
+    <h3 class="story-card__title"><a href="{{ article.get_absolute_url }}">{{ article.display_title }}</a></h3>
+    {% if show_excerpt|default:True %}
+      <p class="story-card__excerpt">{{ article.excerpt|default:article.subtitle|truncatechars:130 }}</p>
+    {% endif %}
+    <div class="story-card__footer">
+      <span>By <a href="{{ article.author.get_absolute_url }}">{{ article.author.display_name }}</a></span>
+      <span>{{ article.reading_time }} min read</span>
+    </div>
+  </div>
+</article>

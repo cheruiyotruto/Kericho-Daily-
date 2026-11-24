@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top:42px;padding-bottom:50px;">
+  <div class="content-page" style="max-width:100%;">
+    <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><span>Contact Us</span></nav>
+    <h1>Contact the Newsroom</h1>
+    <p class="content-page__intro">Send a story tip, correction, advertising enquiry or general question.</p>
+    <div class="contact-grid">
+      <div class="contact-card">
+        <h3>Editorial desk</h3>
+        <p><strong>Email:</strong> {{ site_email }}</p>
+        <p><strong>Phone:</strong> {{ site_phone }}</p>
+        <p><strong>Corrections:</strong> corrections@kerichodaily.co.ke</p>
+        <p><strong>Advertising:</strong> ads@kerichodaily.co.ke</p>
+        <h3 style="margin-top:24px;">Office</h3>
+        <p>Kericho Town, Kericho County<br />South Rift, Kenya</p>
+        {% if show_demo_banner %}<p class="field-help">Demonstration contact details. This is not a live newsroom.</p>{% endif %}
+      </div>
+      <div class="dashboard-panel" style="margin-bottom:0;">
+        <h2 style="font-family:var(--font-display);font-size:1.5rem;margin-bottom:18px;">Send us a message</h2>
+        {% if messages %}{% for message in messages %}{% if 'contact-success' in message.tags %}<div class="alert alert--success">{{ message }}</div>{% endif %}{% endfor %}{% endif %}
+        <form method="post">
+          {% csrf_token %}
+          {% for field in form %}
+            <div class="field">
+              <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field }}
+              {% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}
+            </div>
+          {% endfor %}
+          <button type="submit" class="btn btn--primary">Send message</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

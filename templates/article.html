@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load news_tags humanize %}
+
+{% block meta %}
+  <meta property="og:site_name" content="{{ site_name }}" />
+  <meta property="og:title" content="{{ article.meta_title }}" />
+  <meta property="og:description" content="{{ article.meta_description }}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="{{ canonical_url }}" />
+  <meta property="og:image" content="{{ og_image }}" />
+  <meta property="article:published_time" content="{{ published_time }}" />
+  <meta property="article:modified_time" content="{{ article.updated_at|date:'c' }}" />
+  <meta property="article:section" content="{{ article.category.name }}" />
+  <meta property="article:author" content="{{ article.author.display_name }}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{{ article.meta_title }}" />
+  <meta name="twitter:description" content="{{ article.meta_description }}" />
+  <meta name="twitter:image" content="{{ og_image }}" />
+{% endblock %}
+
+{% block content %}
+<article class="article-page">
+  <div class="container">
+    <nav class="article-breadcrumb">
+      <a href="{% url 'news:home' %}">Home</a><span>›</span>
+      <a href="{{ article.category.get_absolute_url }}">{{ article.category.name }}</a><span>›</span>
+      <span>{{ article.title|truncatechars:60 }}</span>
+    </nav>
+
+    <header class="article-header">
+      <div class="article-header__badges">
+        <a href="{{ article.category.get_absolute_url }}" class="hero-story__badge">{{ article.category.name }}</a>
+        {% if article.is_breaking %}<span class="hero-story__badge">Breaking</span>{% endif %}
+        {% if article.is_sponsored %}<span class="hero-story__badge" style="background:var(--navy);">Sponsored{% if article.sponsor_name %} · {{ article.sponsor_name }}{% endif %}</span>{% endif %}
+        {% if article.is_sample %}<span class="hero-story__badge hero-story__badge--sample" style="background:rgba(120,120,120,.18);color:var(--text);border:1px solid var(--line);">Sample report</span>{% endif %}
+      </div>
+      <h1>{{ article.display_title }}</h1>
+      {% if article.subtitle %}<p class="article-subtitle">{{ article.subtitle }}</p>{% endif %}
+      <div class="article-byline">
+        <div class="author-avatar">
+          {% if article.author.avatar %}<img src="{{ article.author.avatar.url }}" alt="" />{% else %}{{ article.author.display_name|slice:':1' }}{% endif %}
+        </div>
+        <div>
+          <div class="article-byline__name">By <a href="{{ article.author.get_absolute_url }}">{{ article.author.display_name }}</a></div>
+          <div class="article-byline__meta">Published {{ article.published_at|date:"d F Y, H:i" }} EAT · {{ article.reading_time }} min read · {{ article.views_count|intcomma }} reads</div>
+        </div>
+      </div>
+    </header>
+
+    {% if article.featured_image or article.featured_image_url %}
+    <figure class="article-hero-image">
+      <img src="{{ article.image_url }}" alt="{{ article.image_caption|default:article.title }}" />
+      {% if article.image_caption or article.image_credit %}
+        <figcaption class="image-caption">
+          {% if article.image_caption %}<strong>{{ article.image_caption }}</strong>{% endif %}
+          {% if article.image_credit %}<span>Photo: {{ article.image_credit }}</span>{% endif %}
+        </figcaption>
+      {% endif %}
+    </figure>
+    {% endif %}
+
+    {% if article.is_sample %}
+      <div class="sample-notice"><strong>Sample content:</strong> This article is a demonstration written to showcase the platform. It is not verified reporting about real people or events.</div>
+    {% endif %}
+
+    <div class="article-layout">
+      <div>
+        <div class="article-share">
+          <span class="article-share__label">Share</span>
+          <a href="{{ share_links.whatsapp }}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn--whatsapp">
+            <svg viewBox="0 0 24 24"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 15.02L2 22l5.1-1.5A9.9 9.9 0 1 0 12.04 2Zm0 18c-1.6 0-3.17-.43-4.55-1.24l-.33-.2-3.02.88.9-2.94-.21-.34A8.1 8.1 0 1 1 12.04 20Z"/></svg><span>WhatsApp</span>
+          </a>
+          <a href="{{ share_links.facebook }}" target="_blank" rel="noopener noreferrer" class="share-btn share-btn--facebook">
+            <svg viewBox="0 0 24 24"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3 0-1.3-.13-2.45-.13-2.42 0-4.08 1.48-4.08 4.2v2.22H7.8V13h2.67v8h3.03Z"/></svg><span>Facebook</span>
+          </a>
+          <a href="{{ share_links.x }}" target="_blank" rel="noopener noreferrer" class="share-btn">
+            <svg viewBox="0 0 24 24"><path d="M18.9 2H22l-6.8 7.8L23.2 22h-6.3l-4.94-6.46L6.3 22H3.2l7.27-8.31L2.8 2h6.45l4.47 5.91L18.9 2Z"/></svg><span>X</span>
+          </a>
+          <a href="{{ share_links.linkedin }}" target="_blank" rel="noopener noreferrer" class="share-btn"><svg viewBox="0 0 24 24"><path d="M6.5 8H3v13h3.5V8ZM4.75 2A2.25 2.25 0 1 0 4.75 6.5 2.25 2.25 0 0 0 4.75 2ZM21 13.4c0-3.4-1.8-5-4.2-5-1.9 0-2.8 1.05-3.3 1.78V8H10v13h3.5v-6.7c0-1.8.34-3.55 2.6-3.55 2.2 0 2.2 2.06 2.2 3.65V21H21v-7.6Z"/></svg><span>LinkedIn</span></a>
+          <button type="button" class="share-btn" data-share-native data-url="{{ canonical_url }}" data-title="{{ article.title }}" data-text="{{ article.excerpt|default:article.subtitle }}"><svg viewBox="0 0 24 24"><path d="M18 16a3 3 0 0 0-2.2 1l-7-3.4a3 3 0 0 0 0-1.2l7-3.4A3 3 0 1 0 15 6c0 .2 0 .4.06.6L8 10a3 3 0 1 0 0 4l7 3.4c-.04.2-.06.4-.06.6a3 3 0 1 0 3-2Z"/></svg><span>Share</span></button>
+        </div>
+
+        {% ad_for_placement 'article_top' %}
+
+        <div class="article-body">{{ article.body|safe }}</div>
+
+        {% ad_for_placement 'article_inline' %}
+
+        {% if article.tags.all %}
+        <div class="article-tags">
+          {% for tag in article.tags.all %}<a href="{% url 'news:tag' tag.slug %}">#{{ tag.name }}</a>{% endfor %}
+        </div>
+        {% endif %}
+
+        {% if article.localities.all %}
+        <div class="article-tags">
+          <span style="font-size:.76rem;color:var(--muted);font-weight:700;">Areas:</span>
+          {% for locality in article.localities.all %}<a href="{{ locality.get_absolute_url }}">{{ locality.name }}</a>{% endfor %}
+        </div>
+        {% endif %}
+
+        <section class="comments-section" id="comments">
+          <h3>Comments ({{ comments.count }})</h3>
+          {% if article.allow_comments %}
+            <form method="post" action="{% url 'news:comment_create' article.id %}" class="comment-form" style="margin-bottom:24px;">
+              {% csrf_token %}
+              <div style="display:none;"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off" /></label></div>
+              <div class="form-grid">
+                <div class="field"><label for="comment-name">Your name</label>{{ comment_form.name }}</div>
+                <div class="field"><label for="comment-email">Email (not published)</label>{{ comment_form.email }}</div>
+              </div>
+              <div class="field"><label for="comment-body">Your comment</label>{{ comment_form.body }}</div>
+              <button type="submit" class="btn btn--primary">Post comment</button>
+              <p class="field-help">Comments are moderated before publication. Please keep it respectful and factual.</p>
+            </form>
+          {% else %}
+            <p class="section__subtitle">Comments are closed for this story.</p>
+          {% endif %}
+
+          {% for comment in comments %}
+            <div class="comment">
+              <div class="comment__avatar">{{ comment.get_initial }}</div>
+              <div>
+                <span class="comment__name">{{ comment.name }}</span><span class="comment__date">{{ comment.created_at|time_label }}</span>
+                <div class="comment__body">{{ comment.body }}</div>
+              </div>
+            </div>
+          {% empty %}
+            <p class="section__subtitle">No comments have been approved yet. Be the first to join the conversation.</p>
+          {% endfor %}
+        </section>
+      </div>
+
+      <aside class="sidebar" style="position:sticky;top:76px;">
+        <div class="widget">
+          <h3 class="widget__title">Related Stories</h3>
+          <div class="video-list">
+            {% for item in related %}
+              <div class="video-list__item">
+                <a href="{{ item.get_absolute_url }}" class="story-card__image" style="width:104px;height:78px;aspect-ratio:auto;border-radius:7px;">
+                  <img src="{{ item.image_url }}" alt="{{ item.title }}" loading="lazy" />
+                </a>
+                <div><h4><a href="{{ item.get_absolute_url }}">{{ item.display_title|truncatechars:82 }}</a></h4><div class="video-meta">{{ item.category.name }} · {{ item.reading_time }} min</div></div>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% ad_for_placement 'homepage_sidebar' %}
+        <div class="widget">
+          <h3 class="widget__title">Most Read</h3>
+          <div class="rank-list">
+            {% for item in trending %}<div class="rank-item"><span class="rank-item__number">{{ forloop.counter }}</span><div><h4 class="rank-item__title"><a href="{{ item.get_absolute_url }}">{{ item.display_title|truncatechars:80 }}</a></h4><div class="rank-item__meta">{{ item.views_count }} reads</div></div></div>{% endfor %}
+          </div>
+        </div>
+        <div class="widget newsletter-widget">
+          <h3 class="widget__title">Stay informed</h3>
+          <p>Get the day's most important stories in your inbox.</p>
+          <form method="post" action="{% url 'newsletter_subscribe' %}" class="newsletter-form">
+            {% csrf_token %}<input type="hidden" name="source" value="article" />
+            <label class="sr-only" for="article-email">Email address</label>
+            <input type="email" id="article-email" name="email" class="form-input" placeholder="you@example.com" required style="margin-bottom:9px;" />
+            <button type="submit" class="btn">Subscribe</button>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</article>
+{% endblock %}

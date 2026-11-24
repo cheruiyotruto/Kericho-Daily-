@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+  <div class="content-page">
+    <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><span>{{ page.title }}</span></nav>
+    <h1>{{ page.title }}</h1>
+    <p class="content-page__intro">{{ page.intro }}</p>
+    {% if page_key == 'about' and show_demo_banner %}
+      <div class="sample-notice"><strong>Demonstration project:</strong> This publication is a working product demonstration. All articles, reporters and statistics are sample content.</div>
+    {% endif %}
+    {% for section in page.sections %}
+      <section class="content-block"><h2>{{ section.heading }}</h2><p>{{ section.body }}</p></section>
+    {% endfor %}
+    {% if page_key == 'privacy' or page_key == 'terms' or page_key == 'corrections' %}
+      <p class="field-help">Last reviewed: {% now "d F Y" %}. Questions? <a href="{% url 'news:contact' %}" style="color:var(--red);font-weight:700;">Contact the newsroom</a>.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

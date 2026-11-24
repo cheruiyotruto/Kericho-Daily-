@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top:34px;padding-bottom:44px;">
+  <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><a href="{% url 'news:videos' %}">Video News</a><span>›</span><span>{{ video.title|truncatechars:50 }}</span></nav>
+  <div class="article-layout">
+    <div>
+      <span class="category-tag">{{ video.category.name|default:"Video News" }}</span>
+      <h1 style="font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.7rem);margin:10px 0 16px;">{{ video.title }}</h1>
+      <div class="video-frame"><iframe src="{{ video.embed_url }}" title="{{ video.title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>
+      <p class="video-meta" style="margin-top:10px;">{{ video.published_at|date:"d F Y" }} · {{ video.views }} views · {{ video.duration|default:"Video report" }}</p>
+      {% if video.is_sample %}<div class="sample-notice"><strong>Sample content:</strong> This demonstration video entry does not represent verified reporting.</div>{% endif %}
+      <p style="line-height:1.8;margin-top:20px;">{{ video.description }}</p>
+    </div>
+    <aside class="sidebar" style="position:static;">
+      <div class="widget"><h3 class="widget__title">More Videos</h3><div class="video-list">
+        {% for item in more_videos %}<div class="video-list__item"><a href="{% url 'news:video_detail' item.id %}" class="video-thumb"><img src="{{ item.thumbnail }}" alt="{{ item.title }}" loading="lazy" /><span class="video-thumb__play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span></a><div><h4><a href="{% url 'news:video_detail' item.id %}">{{ item.title }}</a></h4><div class="video-meta">{{ item.views }} views</div></div></div>{% endfor %}
+      </div></div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

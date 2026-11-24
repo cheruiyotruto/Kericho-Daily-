@@ -1,0 +1,13 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Video management{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Video items</h2><a href="{% url 'dashboard:video_new' %}" class="btn btn--primary btn--small">+ Add video</a></div>
+  <div style="overflow-x:auto;"><table class="data-table">
+    <thead><tr><th>Title</th><th>Category</th><th>YouTube ID</th><th>Published</th><th>Featured</th><th>Actions</th></tr></thead>
+    <tbody>{% for video in videos %}<tr><td><strong>{{ video.title }}</strong></td><td>{{ video.category.name|default:"—" }}</td><td><code>{{ video.youtube_id }}</code></td><td>{{ video.published_at|date:"d M Y" }}</td><td>{% if video.is_featured %}Yes{% else %}No{% endif %}</td><td><div class="table-actions"><a href="{% url 'dashboard:video_edit' video.id %}">Edit</a><a href="{% url 'news:video_detail' video.id %}" target="_blank" rel="noopener">View</a></div></td></tr>{% empty %}<tr><td colspan="6" class="empty-state">No video items yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

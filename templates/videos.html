@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load news_tags %}
+
+{% block content %}
+<section class="page-hero"><div class="container"><h1>Video News</h1><p>Breaking news videos, interviews, community reports and special investigations.</p></div></section>
+<div class="container" style="padding-bottom:40px;">
+  {% if featured %}
+  <section class="section" style="padding-top:0;">
+    <div class="section__head"><div><h2 class="section__title">Featured Video</h2></div></div>
+    <div class="video-hero">
+      <div class="video-frame"><iframe src="{{ featured.embed_url }}" title="{{ featured.title }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>
+      <div>
+        <span class="category-tag">{{ featured.category.name|default:"Video" }}</span>
+        <h3 style="font-family:var(--font-display);font-size:1.6rem;margin:10px 0;">{{ featured.title }}</h3>
+        <p class="section__subtitle">{{ featured.description }}</p>
+        <div class="video-meta">{{ featured.duration|default:"Video" }} · {{ featured.views }} views · {{ featured.published_at|time_label }}</div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="section">
+    <div class="section__head"><div><h2 class="section__title">All Videos</h2></div></div>
+    <div class="news-grid">
+      {% for video in videos %}
+        <article class="story-card">
+          <a href="{% url 'news:video_detail' video.id %}" class="video-thumb" style="border-radius:0;">
+            <img src="{{ video.thumbnail }}" alt="{{ video.title }}" loading="lazy" />
+            <span class="video-thumb__play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+          </a>
+          <div class="story-card__body">
+            <div class="story-card__meta"><span class="category-tag">{{ video.category.name|default:"Video" }}</span><span class="dot">·</span><span>{{ video.published_at|time_label }}</span></div>
+            <h3 class="story-card__title"><a href="{% url 'news:video_detail' video.id %}">{{ video.title }}</a></h3>
+            <p class="story-card__excerpt">{{ video.description|truncatechars:110 }}</p>
+            <div class="story-card__footer"><span>{{ video.duration|default:"Video report" }}</span><span>{{ video.views }} views</span></div>
+          </div>
+        </article>
+      {% empty %}<p class="empty-state">No videos have been added yet.</p>{% endfor %}
+    </div>
+    {% if videos.has_other_pages %}
+    <nav class="pagination">
+      {% if videos.has_previous %}<a href="{% page_url request videos.previous_page_number %}">← Previous</a>{% endif %}
+      {% if videos.has_next %}<a href="{% page_url request videos.next_page_number %}">Next →</a>{% endif %}
+    </nav>
+    {% endif %}
+  </section>
+</div>
+{% endblock %}

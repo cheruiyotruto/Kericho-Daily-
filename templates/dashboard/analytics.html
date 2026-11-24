@@ -1,0 +1,23 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Audience analytics{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Readership overview</h2><form method="get"><select name="days" class="form-select" onchange="this.form.submit()" style="width:auto;display:inline-block;"><option value="7" {% if days == 7 %}selected{% endif %}>7 days</option><option value="14" {% if days == 14 %}selected{% endif %}>14 days</option><option value="30" {% if days == 30 %}selected{% endif %}>30 days</option><option value="90" {% if days == 90 %}selected{% endif %}>90 days</option></select></form></div>
+  <div class="stat-grid">
+    <div class="stat-card"><div class="stat-card__label">Page views</div><div class="stat-card__value">{{ total_page_views }}</div></div>
+    <div class="stat-card"><div class="stat-card__label">Unique visitors</div><div class="stat-card__value">{{ unique_visitors }}</div></div>
+    <div class="stat-card"><div class="stat-card__label">Ad impressions</div><div class="stat-card__value">{{ total_page_views }}</div><div class="stat-card__hint">tracked via ad endpoints</div></div>
+  </div>
+  <div class="chart" style="height:220px;">
+    {% for point in chart %}<div class="chart__bar-wrap" title="{{ point.day }}: {{ point.count }}"><span class="chart__value">{{ point.count }}</span><div class="chart__bar" style="height:{% widthratio point.count chart_max 100 %}%;"></div><span class="chart__label">{{ point.day }}</span></div>{% endfor %}
+  </div>
+</div>
+<div class="dashboard-columns">
+  <div class="dashboard-panel"><div class="dashboard-panel__head"><h2>Top articles</h2></div><div class="rank-list">{% for article in top_articles %}<div class="rank-item"><span class="rank-item__number">{{ forloop.counter }}</span><div><h4 class="rank-item__title">{{ article.title|truncatechars:72 }}</h4><div class="rank-item__meta">{{ article.views }} views in period · {{ article.views_count }} lifetime</div></div></div>{% empty %}<p class="empty-state">No readership recorded.</p>{% endfor %}</div></div>
+  <div class="dashboard-panel"><div class="dashboard-panel__head"><h2>Traffic sources</h2></div><div class="rank-list">{% for ref in referrers %}<div class="rank-item"><span class="rank-item__number">{{ forloop.counter }}</span><div><h4 class="rank-item__title" style="word-break:break-all;">{{ ref.referrer|truncatechars:80 }}</h4><div class="rank-item__meta">{{ ref.count }} visits</div></div></div>{% empty %}<p class="empty-state">No referrer data yet.</p>{% endfor %}</div>
+    <div style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px;"><h3 style="font-size:.8rem;text-transform:uppercase;color:var(--muted);">Device mix</h3>{% for device in device_breakdown %}<p style="font-size:.84rem;margin-top:8px;">{{ device.label }}: <strong>{{ device.count }}</strong></p>{% endfor %}</div>
+  </div>
+</div>
+{% endblock %}

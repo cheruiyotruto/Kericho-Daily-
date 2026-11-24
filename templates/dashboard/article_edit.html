@@ -1,0 +1,38 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}{% if article %}Edit article{% else %}New article{% endif %}{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel dashboard-form">
+  <div class="dashboard-panel__head">
+    <h2>{% if article %}{{ article.title|truncatechars:70 }}{% else %}Create a sample story{% endif %}</h2>
+    {% if article %}<a href="{{ article.get_absolute_url }}" target="_blank" rel="noopener" class="btn btn--outline btn--small">Preview</a>{% endif %}
+  </div>
+
+  {% if not can_publish %}
+    <div class="sample-notice">Reporter accounts save drafts and submit them for editorial review. An editor publishes the final story.</div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-grid">
+      {% for field in form %}
+        <div class="field {% if field.name == 'body' or field.name == 'excerpt' or field.name == 'seo_description' or field.name == 'html_snippet' %}field--full{% endif %}">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <label style="display:flex;align-items:center;gap:8px;font-weight:600;">{{ field }} {{ field.label }}</label>
+          {% else %}
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+          {% endif %}
+          {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+          {% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn--primary">{% if article %}Save changes{% else %}Create article{% endif %}</button>
+      <a href="{% url 'dashboard:article_list' %}" class="btn btn--outline">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

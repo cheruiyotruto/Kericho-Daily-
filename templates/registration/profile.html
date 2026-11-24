@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-block:48px;">
+  <div class="content-page" style="max-width:100%;">
+    <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><span>My account</span></nav>
+    <h1>My Account</h1>
+    <p class="content-page__intro">Signed in as {{ user.get_full_name|default:user.username }}.</p>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-card__label">Role</div><div class="stat-card__value" style="font-size:1.25rem;">{{ profile.get_role_display }}</div></div>
+      <div class="stat-card"><div class="stat-card__label">Published stories</div><div class="stat-card__value">{{ profile.published_articles.count }}</div></div>
+    </div>
+    {% if user.is_staff or profile.role != 'subscriber' %}<a href="{% url 'dashboard:home' %}" class="btn btn--primary">Open newsroom dashboard</a>{% endif %}
+    <a href="{% url 'accounts:logout' %}" class="btn btn--outline">Sign out</a>
+  </div>
+</div>
+{% endblock %}

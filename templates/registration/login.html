@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-block:56px;">
+  <div style="max-width:430px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow-sm);">
+    <span class="category-tag">Newsroom access</span>
+    <h1 style="font-family:var(--font-display);font-size:2rem;margin:8px 0 6px;">Welcome back</h1>
+    <p class="section__subtitle" style="margin-bottom:22px;">Sign in to manage stories, comments and campaigns.</p>
+    <form method="post">
+      {% csrf_token %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}" />{% endif %}
+      {% for field in form %}
+        <div class="field">
+          <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+          {{ field }}
+          {% for error in field.errors %}<ul class="errorlist"><li>{{ error }}</li></ul>{% endfor %}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn--primary btn--block">Sign in</button>
+    </form>
+    <p style="font-size:.82rem;color:var(--muted);margin-top:18px;text-align:center;">New here? <a href="{% url 'accounts:register' %}" style="color:var(--red);font-weight:700;">Create a reader account</a></p>
+    {% if show_demo_banner %}
+    <div class="sample-notice" style="margin:20px 0 0;font-size:.74rem;">Demo accounts: <strong>admin / Admin@123</strong> (Super Admin), <strong>editor / Editor@123</strong>, <strong>reporter / Reporter@123</strong>, <strong>moderator / Moderator@123</strong>, <strong>ads / Ads@123</strong>.</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,64 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block page_title %}Dashboard{% endblock %} | KERICHO DAILY</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body class="dashboard-body">
+  <div class="dashboard-shell">
+    <aside class="dashboard-sidebar" id="dashboard-sidebar">
+      <a href="{% url 'news:home' %}" class="brand">
+        <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand__mark" />
+        <span class="brand__text"><span class="brand__name">KERICHO <span>DAILY</span></span></span>
+      </a>
+      <nav class="dashboard-nav">
+        <div class="dashboard-nav__group">Overview</div>
+        <a href="{% url 'dashboard:home' %}" class="{% if request.resolver_match.url_name == 'home' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3Zm10 0h8v5h-8V3ZM3 14h8v7H3v-7Zm10 0h8v7h-8v-7Z"/></svg>Dashboard</a>
+        <a href="{% url 'dashboard:analytics' %}" class="{% if request.resolver_match.url_name == 'analytics' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20h16v2H2V2h2v18Zm4-8h3v6H8v-6Zm5-5h3v11h-3V7Zm5-4h3v15h-3V3Z"/></svg>Analytics</a>
+
+        <div class="dashboard-nav__group">Editorial</div>
+        {% if perms.news.add_article or user.is_superuser %}<a href="{% url 'dashboard:article_list' %}" class="{% if 'article' in request.resolver_match.url_name %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 3h11l5 5v13H4V3Zm2 2v14h12V9h-4V5H6Zm2 7h8v2H8v-2Zm0 4h8v2H8v-2Z"/></svg>Articles</a>{% endif %}
+        {% if perms.news.change_video or user.is_superuser or perms.news.add_video %}<a href="{% url 'dashboard:videos' %}" class="{% if 'video' in request.resolver_match.url_name %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 5h16v14H4V5Zm2 2v10h12V7H6Zm4 2 5 3-5 3V9Z"/></svg>Videos</a>{% endif %}
+        {% if perms.news.change_comment or user.is_superuser %}<a href="{% url 'dashboard:comments' %}" class="{% if request.resolver_match.url_name == 'comments' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v12H7l-3 3V4Zm2 2v9h1v2l2-2h9V6H6Z"/></svg>Comments</a>{% endif %}
+        {% if perms.news.change_breakingnews or user.is_superuser %}<a href="{% url 'dashboard:breaking' %}" class="{% if request.resolver_match.url_name == 'breaking' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-4 12.74V19h8v-4.26A7 7 0 0 0 12 2Zm-2 20h4v2h-4v-2Z"/></svg>Breaking news</a>{% endif %}
+        {% if perms.news.change_profile or user.is_superuser %}<a href="{% url 'dashboard:journalists' %}" class="{% if 'journalist' in request.resolver_match.url_name %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-3.3 0-7 1.7-7 4v3h14v-3c0-2.3-3.7-4-7-4Zm8-9v2h2v2h-2v2h-2V8h-2V6h2V4h2Z"/></svg>Journalists</a>{% endif %}
+
+        <div class="dashboard-nav__group">Business &amp; audience</div>
+        {% if perms.news.change_advertisement or user.is_superuser %}<a href="{% url 'dashboard:advertisements' %}" class="{% if 'advertisement' in request.resolver_match.url_name or 'ad_' in request.resolver_match.url_name %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M3 6h18v12H3V6Zm2 2v8h14V8H5Zm2 1h6v6H7V9Z"/></svg>Advertisements</a>{% endif %}
+        <a href="{% url 'dashboard:subscribers' %}" class="{% if request.resolver_match.url_name == 'subscribers' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M2 5h20v14H2V5Zm2 2v1l8 5 8-5V7H4Zm16 4-8 5-8-5v5h16v-5Z"/></svg>Subscribers</a>
+        <a href="{% url 'dashboard:messages' %}" class="{% if request.resolver_match.url_name == 'messages' %}is-active{% endif %}"><svg class="icon" viewBox="0 0 24 24"><path d="M4 4h16v16H4V4Zm2 2v12h12V6H6Zm2 3h8v2H8V9Zm0 4h6v2H8v-2Z"/></svg>Messages</a>
+
+        <div class="dashboard-nav__group">Site</div>
+        <a href="{% url 'news:home' %}" target="_blank"><svg class="icon" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2c1.5 0 2.9.4 4.1 1.1L6.1 15.1A8 8 0 0 1 12 4Zm-4.1 15.9L17.9 8.9A8 8 0 0 1 7.9 19.9Z"/></svg>View website</a>
+        <a href="{% url 'admin:index' %}"><svg class="icon" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm9 4c0-.5 0-1-.1-1.4l2-1.6-2-3.4-2.4 1a8 8 0 0 0-2.4-1.4L15.7 2h-4l-.4 3.2a8 8 0 0 0-2.4 1.4l-2.4-1-2 3.4 2 1.6a8 8 0 0 0 0 2.8l-2 1.6 2 3.4 2.4-1a8 8 0 0 0 2.4 1.4l.4 3.2h4l.4-3.2a8 8 0 0 0 2.4-1.4l2.4 1 2-3.4-2-1.6c.1-.4.1-.9.1-1.4Z"/></svg>Django admin</a>
+        <a href="{% url 'accounts:logout' %}"><svg class="icon" viewBox="0 0 24 24"><path d="M10 3H3v18h7v-2H5V5h5V3Zm5.5 4.5L14 9l3 3-3 3 1.5 1.5L20 12l-4.5-4.5Z"/></svg>Sign out</a>
+      </nav>
+    </aside>
+
+    <div class="dashboard-main">
+      <div class="dashboard-topbar">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button type="button" class="icon-button mobile-dashboard-toggle" id="dashboard-menu-toggle" aria-label="Toggle navigation"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <h1>{% block heading %}Newsroom Dashboard{% endblock %}</h1>
+        </div>
+        <div class="dashboard-topbar__right">
+          <span class="role-pill">{{ role_label|default:request.user.profile.get_role_display|default:"Staff" }}</span>
+          <a href="{% url 'accounts:profile' %}" class="btn btn--outline btn--small">{{ user.get_full_name|default:user.username }}</a>
+        </div>
+      </div>
+
+      {% if messages %}<div class="dashboard-content" style="padding-bottom:0;"><div class="message-stack" style="padding:0;">{% for message in messages %}<div class="alert alert--{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div></div>{% endif %}
+
+      <div class="dashboard-content">{% block dashboard_content %}{% endblock %}</div>
+    </div>
+  </div>
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

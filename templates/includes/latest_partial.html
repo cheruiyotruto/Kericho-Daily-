@@ -1,0 +1,5 @@
+{% load news_tags %}
+{% for article in latest %}
+  {% include "includes/article_card.html" with article=article %}
+{% endfor %}
+{% if latest.has_next %}<span data-next-url="{% page_url request latest.next_page_number %}" hidden></span>{% endif %}

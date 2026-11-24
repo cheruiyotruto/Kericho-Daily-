@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load news_tags %}
+
+{% block content %}
+<div class="container" style="padding-top:38px;">
+  <div class="section__head">
+    <div><h1 class="section__title">Search Stories</h1><p class="section__subtitle">Find articles by keyword, topic, category or reporter.</p></div>
+  </div>
+
+  <form method="get" class="filter-bar" role="search">
+    <input type="search" name="q" class="form-input" placeholder="e.g. tea, budget, education, football..." value="{{ query }}" autofocus />
+    <select name="category" class="form-select"><option value="">All categories</option>{% for cat in categories %}<option value="{{ cat.slug }}" {% if category_slug == cat.slug %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}</select>
+    <button type="submit" class="btn btn--primary">Search</button>
+  </form>
+
+  <p class="results-note">{% if query %}{{ result_count }} result{{ result_count|pluralize }} for “{{ query }}”{% else %}Enter a keyword to search the archive.{% endif %}</p>
+
+  <div class="news-grid">
+    {% for article in articles %}
+      {% include "includes/article_card.html" with article=article %}
+    {% empty %}
+      <p class="empty-state">{% if query %}No stories matched your search. Try a different keyword or category.{% else %}No stories to display yet.{% endif %}</p>
+    {% endfor %}
+  </div>
+
+  {% if articles.has_other_pages %}
+  <nav class="pagination" aria-label="Pagination">
+    {% if articles.has_previous %}<a href="{% page_url request articles.previous_page_number %}">← Previous</a>{% endif %}
+    {% for number in articles.paginator.page_range %}
+      {% if number == articles.number %}<span class="current">{{ number }}</span>
+      {% elif number > articles.number|add:'-2' and number < articles.number|add:'3' %}<a href="{% page_url request number %}">{{ number }}</a>{% endif %}
+    {% endfor %}
+    {% if articles.has_next %}<a href="{% page_url request articles.next_page_number %}">Next →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

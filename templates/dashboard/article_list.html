@@ -1,0 +1,49 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Articles{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head">
+    <h2>Editorial workflow</h2>
+    {% if perms.news.add_article or user.is_superuser %}<a href="{% url 'dashboard:article_new' %}" class="btn btn--primary btn--small">+ New article</a>{% endif %}
+  </div>
+  <form method="get" class="filter-bar">
+    <input type="search" name="q" class="form-input" placeholder="Search headline, slug or body..." value="{{ query }}" />
+    <select name="status" class="form-select"><option value="">All statuses</option><option value="draft" {% if status == 'draft' %}selected{% endif %}>Draft</option><option value="scheduled" {% if status == 'scheduled' %}selected{% endif %}>Scheduled</option><option value="published" {% if status == 'published' %}selected{% endif %}>Published</option><option value="archived" {% if status == 'archived' %}selected{% endif %}>Archived</option></select>
+    <select name="category" class="form-select"><option value="">All categories</option>{% for cat in categories %}<option value="{{ cat.slug }}" {% if category_slug == cat.slug %}selected{% endif %}>{{ cat.name }}</option>{% endfor %}</select>
+    <button type="submit" class="btn btn--outline">Filter</button>
+  </form>
+  <div style="overflow-x:auto;">
+    <table class="data-table">
+      <thead><tr><th>Article</th><th>Category</th><th>Status</th><th>Author</th><th>Publish at</th><th>Reads</th><th>Actions</th></tr></thead>
+      <tbody>
+      {% for article in articles %}
+        <tr>
+          <td><strong><a href="{% url 'dashboard:article_edit' article.id %}">{{ article.title|truncatechars:54 }}</a></strong><br /><span style="color:var(--muted);font-size:.7rem;">/{{ article.category.slug }}/{{ article.slug }}/</span></td>
+          <td>{{ article.category.name }}</td>
+          <td><span class="status-pill status-pill--{{ article.status }}">{{ article.status }}</span></td>
+          <td>{{ article.author.display_name }}</td>
+          <td>{{ article.published_at|date:"d M Y, H:i" }}</td>
+          <td>{{ article.views_count }}</td>
+          <td>
+            <div class="table-actions">
+              <a href="{% url 'dashboard:article_edit' article.id %}">Edit</a>
+              <a href="{{ article.get_absolute_url }}" target="_blank" rel="noopener">View</a>
+              {% if can_publish or article.status == 'draft' or article.status == 'scheduled' %}<form method="post" action="{% url 'dashboard:article_delete' article.id %}" data-confirm="Delete this article permanently?">{% csrf_token %}<button type="submit" class="danger">Delete</button></form>{% endif %}
+            </div>
+          </td>
+        </tr>
+      {% empty %}<tr><td colspan="7" class="empty-state">No articles match your filters.</td></tr>{% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% if articles.has_other_pages %}
+  <nav class="pagination">
+    {% if articles.has_previous %}<a href="?page={{ articles.previous_page_number }}">← Previous</a>{% endif %}
+    <span class="current">{{ articles.number }} / {{ articles.paginator.num_pages }}</span>
+    {% if articles.has_next %}<a href="?page={{ articles.next_page_number }}">Next →</a>{% endif %}
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

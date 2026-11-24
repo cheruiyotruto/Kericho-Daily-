@@ -1,0 +1,201 @@
+{% load static news_tags %}<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block page_title %}{{ page_title|default:site_name }}{% endblock %}</title>
+  <meta name="description" content="{% block page_description %}{{ page_description|default:site_tagline }}{% endblock %}" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#e11d24" />
+  <link rel="canonical" href="{{ canonical_url|default:request.build_absolute_uri }}" />
+  <link rel="icon" href="{% static 'favicon.svg' %}" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="{% static 'favicon.svg' %}" />
+  <link rel="manifest" href="{% static 'manifest.json' %}" />
+  <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Roboto:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+  {% block meta %}
+    <meta property="og:site_name" content="{{ site_name }}" />
+    <meta property="og:title" content="{{ page_title|default:site_name }}" />
+    <meta property="og:description" content="{{ page_description|default:site_tagline }}" />
+    <meta property="og:type" content="{{ og_type|default:'website' }}" />
+    <meta property="og:url" content="{{ canonical_url|default:request.build_absolute_uri }}" />
+    <meta property="og:image" content="{{ og_image|default:request.scheme }}://{{ request.get_host }}{% static 'images/logo-mark.svg' %}" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ page_title|default:site_name }}" />
+    <meta name="twitter:description" content="{{ page_description|default:site_tagline }}" />
+  {% endblock %}
+  {% if search_console_verification %}<meta name="google-site-verification" content="{{ search_console_verification }}" />{% endif %}
+  {% if schema %}{{ schema|json_script:"newsarticle-schema" }}{% endif %}
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  {% if google_analytics_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ google_analytics_id }}"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ google_analytics_id }}');</script>
+  {% endif %}
+
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  <div class="reading-progress" id="reading-progress" aria-hidden="true"></div>
+
+  {% if show_demo_banner %}
+  <div class="demo-banner" role="note">
+    <span class="demo-banner__dot"></span>
+    <strong>Demonstration website.</strong> All stories, by-lines and statistics are clearly labelled sample content — not verified breaking news.
+  </div>
+  {% endif %}
+
+  <header class="site-header">
+    <div class="topbar">
+      <div class="container topbar__inner">
+        <div class="topbar__left">
+          <span class="topbar__date">{% now "l, d F Y" %}</span>
+          <span class="topbar__separator" aria-hidden="true">|</span>
+          <span>South Rift · Kenya</span>
+        </div>
+        <div class="topbar__right">
+          <div class="social-row">{% include "includes/social_icons.html" %}</div>
+          <span class="topbar__separator" aria-hidden="true">|</span>
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard:home' %}" class="topbar__link"><svg class="icon" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5Z"/></svg>{{ user.get_full_name|default:user.username }}</a>
+            <a href="{% url 'accounts:logout' %}" class="topbar__link">Sign out</a>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="topbar__link"><svg class="icon" viewBox="0 0 24 24"><path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 2c-4.4 0-8 2.2-8 5v2h16v-2c0-2.8-3.6-5-8-5Z"/></svg>Login</a>
+            <a href="{% url 'accounts:register' %}" class="topbar__link">Register</a>
+          {% endif %}
+          <a href="#newsletter" class="btn btn--subscribe">Subscribe</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="container masthead">
+      <button class="icon-button menu-button" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="main-nav" id="menu-toggle">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+
+      <a href="{% url 'news:home' %}" class="brand" aria-label="Kericho Daily home">
+        <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand__mark" />
+        <span class="brand__text">
+          <span class="brand__name">KERICHO <span>DAILY</span></span>
+          <span class="brand__tagline">Your Trusted Source. Your Daily News.</span>
+        </span>
+      </a>
+
+      <div class="masthead__actions">
+        <form action="{% url 'news:search' %}" method="get" class="search-form" role="search">
+          <label class="sr-only" for="site-search">Search stories</label>
+          <input type="search" id="site-search" name="q" placeholder="Search news, topics, reporters..." value="{{ query|default:'' }}" />
+          <button type="submit" aria-label="Search"><svg class="icon" viewBox="0 0 24 24"><path d="M10 2a8 8 0 1 0 4.9 14.32l5.39 5.39 1.42-1.42-5.4-5.39A8 8 0 0 0 10 2Zm0 2a6 6 0 1 1 0 12 6 6 0 0 1 0-12Z"/></svg></button>
+        </form>
+        <button type="button" class="icon-button theme-toggle" id="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.7 14.3A9 9 0 0 1 9.7 3.3 9 9 0 1 0 20.7 14.3Z"/></svg>
+          <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm0-5h0v3h0V2Zm0 22h0v-3h0v3ZM2 12h3v0H2Zm17 0h3v0h-3ZM4.9 4.9 7 7 4.9 4.9ZM17 17l2.1 2.1L17 17Zm12.1-12.1L17 7l2.1-2.1Z"/></svg>
+        </button>
+        <button type="button" class="icon-button notification-button" id="notification-toggle" aria-label="Enable breaking news alerts" title="Breaking news alerts">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm7-6v-5a7 7 0 0 0-5.5-6.84V3a1.5 1.5 0 0 0-3 0v1.16A7 7 0 0 0 5 11v5l-2 2v1h18v-1l-2-2Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <nav class="main-nav" id="main-nav" aria-label="Primary navigation">
+      <div class="container main-nav__inner">
+        <a href="{% url 'news:home' %}" class="nav-link nav-link--home {% if request.resolver_match.url_name == 'home' %}is-active{% endif %}">Home</a>
+        {% for category in nav_categories %}
+          <a href="{{ category.get_absolute_url }}" class="nav-link {% if category_obj.slug == category.slug %}is-active{% endif %}">{{ category.name }}</a>
+        {% empty %}
+          <a href="{% url 'news:category' 'kericho-news' %}" class="nav-link">Kericho News</a>
+          <a href="{% url 'news:category' 'kenya-news' %}" class="nav-link">Kenya News</a>
+        {% endfor %}
+        <a href="{% url 'news:videos' %}" class="nav-link nav-link--video">Video</a>
+        <a href="{% url 'news:advertise' %}" class="nav-link nav-link--ads">Advertise</a>
+      </div>
+    </nav>
+
+    {% if breaking_items %}
+    <div class="ticker" aria-label="Breaking news ticker">
+      <div class="container ticker__inner">
+        <span class="ticker__label"><span class="pulse-dot"></span>Breaking</span>
+        <div class="ticker__viewport">
+          <div class="ticker__track">
+            {% for item in breaking_items %}
+              <a href="{{ item.target_url }}" class="ticker__item">{% if show_demo_banner %}<span class="ticker__sample">SAMPLE</span>{% endif %}{{ item.headline }}</a>
+              <span class="ticker__bullet" aria-hidden="true">●</span>
+            {% endfor %}
+          </div>
+        </div>
+        <a href="{% url 'news:category' 'kericho-news' %}" class="ticker__more">All updates</a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="container header-ad">{% ad_for_placement 'header' %}</div>
+  </header>
+
+  {% if messages %}
+  <div class="container message-stack" aria-live="polite">
+    {% for message in messages %}
+      <div class="alert alert--{{ message.tags|default:'info' }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main id="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <a href="{% url 'news:home' %}" class="brand brand--footer">
+          <img src="{% static 'images/logo-mark.svg' %}" alt="" class="brand__mark" />
+          <span class="brand__text"><span class="brand__name">KERICHO <span>DAILY</span></span></span>
+        </a>
+        <p>{{ site_tagline }}</p>
+        {% if show_demo_banner %}<p class="footer__note">Demonstration newsroom. Sample reporting only.</p>{% endif %}
+        <div class="social-row">{% include "includes/social_icons.html" %}</div>
+      </div>
+      <div>
+        <h4>News sections</h4>
+        <ul class="footer__links">
+          {% for category in nav_categories|slice:':8' %}<li><a href="{{ category.get_absolute_url }}">{{ category.name }}</a></li>{% endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>About</h4>
+        <ul class="footer__links">
+          <li><a href="{% url 'news:about' %}">About Us</a></li>
+          <li><a href="{% url 'news:team' %}">Editorial Team</a></li>
+          <li><a href="{% url 'news:contact' %}">Contact Us</a></li>
+          <li><a href="{% url 'news:corrections' %}">Corrections Policy</a></li>
+          <li><a href="{% url 'news:privacy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'news:terms' %}">Terms & Conditions</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Business</h4>
+        <ul class="footer__links">
+          <li><a href="{% url 'news:advertise' %}">Advertise With Us</a></li>
+          <li><a href="{% url 'news:videos' %}">Video News</a></li>
+          <li><a href="{% url 'rss_feed' %}">RSS Feed</a></li>
+          <li><a href="{% url 'sitemap_xml' %}">Sitemap</a></li>
+          {% if user.is_authenticated %}<li><a href="{% url 'dashboard:home' %}">Newsroom Dashboard</a></li>{% endif %}
+        </ul>
+        <a href="{% url 'news:advertise' %}" class="btn btn--outline btn--small">Partner with us</a>
+      </div>
+    </div>
+    <div class="container footer__ad">{% ad_for_placement 'footer' %}</div>
+    <div class="container footer__bottom">
+      <p>&copy; {% now "Y" %} {{ site_name }}. All rights reserved.</p>
+      <p>Built for Kericho County, the South Rift, Kenya and the diaspora.</p>
+    </div>
+  </footer>
+
+  <div class="notification-toast" id="notification-toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

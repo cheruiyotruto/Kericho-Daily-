@@ -1,0 +1,13 @@
+{% extends "dashboard/base_dashboard.html" %}
+
+{% block heading %}Contact messages{% endblock %}
+
+{% block dashboard_content %}
+<div class="dashboard-panel">
+  <div class="dashboard-panel__head"><h2>Inbox</h2></div>
+  <div style="overflow-x:auto;"><table class="data-table">
+    <thead><tr><th>Subject</th><th>From</th><th>Message</th><th>Date</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for message in messages %}<tr><td><strong>{{ message.subject }}</strong></td><td>{{ message.name }}<br /><span style="color:var(--muted);font-size:.7rem;">{{ message.email }}</span></td><td>{{ message.message|truncatechars:110 }}</td><td>{{ message.created_at|date:"d M Y" }}</td><td><span class="status-pill status-pill--{% if message.is_read %}published{% else %}draft{% endif %}">{% if message.is_read %}Read{% else %}New{% endif %}</span></td><td>{% if not message.is_read %}<form method="post">{% csrf_token %}<input type="hidden" name="message_id" value="{{ message.id }}" /><button type="submit" class="btn btn--outline btn--small">Mark read</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="6" class="empty-state">No messages yet.</td></tr>{% endfor %}</tbody>
+  </table></div>
+</div>
+{% endblock %}

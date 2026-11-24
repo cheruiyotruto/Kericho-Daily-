@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% load static news_tags humanize %}
+
+{% block content %}
+<section class="hero-section">
+  <div class="container">
+    <div class="section__kicker"><span class="section__kicker-dot"></span>Top Stories</div>
+    <div class="hero-grid">
+      {% if hero %}
+      <article class="hero-story">
+        <div class="hero-story__image">
+          <img src="{{ hero.image_url }}" alt="{{ hero.title }}" fetchpriority="high" decoding="async" />
+        </div>
+        <div class="hero-story__content">
+          <div class="hero-story__badges">
+            <span class="hero-story__badge">{{ hero.category.name }}</span>
+            {% if hero.is_breaking %}<span class="hero-story__badge">Breaking</span>{% endif %}
+            {% if hero.is_sample %}<span class="hero-story__badge hero-story__badge--sample">Sample report</span>{% endif %}
+          </div>
+          <h1 class="hero-story__title"><a href="{{ hero.get_absolute_url }}">{{ hero.display_title }}</a></h1>
+          {% if hero.subtitle or hero.excerpt %}<p class="hero-story__excerpt">{{ hero.excerpt|default:hero.subtitle|truncatechars:210 }}</p>{% endif %}
+          <div class="hero-story__meta">
+            <span>By <a href="{{ hero.author.get_absolute_url }}">{{ hero.author.display_name }}</a></span>
+            <span>{{ hero.published_at|time_label }}</span>
+            <span>{{ hero.reading_time }} min read</span>
+          </div>
+        </div>
+      </article>
+      {% endif %}
+
+      <div class="supporting-stories">
+        {% for story in supporting %}
+          {% include "includes/article_card.html" with article=story card_class="story-card--compact" show_excerpt=False %}
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container home-layout">
+  <div class="main-column">
+    <section class="section" id="latest">
+      <div class="section__head">
+        <div>
+          <h2 class="section__title">Latest News</h2>
+          <p class="section__subtitle">Fresh reporting from across Kericho County, Kenya and beyond.</p>
+        </div>
+        <a href="{% url 'news:search' %}" class="section__link">View all stories →</a>
+      </div>
+
+      <div class="news-grid" id="infinite-results">
+        {% for article in latest %}
+          {% include "includes/article_card.html" with article=article %}
+          {% if forloop.counter == 6 %}{% ad_for_placement 'between_cards' %}{% endif %}
+        {% empty %}
+          <p class="empty-state">No published stories yet. Sign in to the newsroom to create the first one.</p>
+        {% endfor %}
+      </div>
+
+      <div id="load-sentinel" aria-hidden="true"></div>
+      {% if latest.has_next %}
+        <div class="load-more-wrap" id="load-more-wrap">
+          <a href="{% page_url request latest.next_page_number %}" id="load-more" class="btn btn--outline">Load more stories</a>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="section section--tint">
+      <div class="section__head">
+        <div>
+          <h2 class="section__title">Kericho County News</h2>
+          <p class="section__subtitle">Local government, agriculture, tea, community events and sub-county updates.</p>
+        </div>
+        <a href="{% url 'news:category' 'kericho-news' %}" class="section__link">All Kericho news →</a>
+      </div>
+      <div class="county-strip">
+        {% for locality in county_localities %}
+          <a href="{{ locality.get_absolute_url }}">{{ locality.name }}</a>
+        {% empty %}
+          <a href="{% url 'news:category' 'kericho-news' %}">Kericho Town</a>
+          <a href="{% url 'news:category' 'kericho-news' %}">Ainamoi</a>
+          <a href="{% url 'news:category' 'kericho-news' %}">Belgut</a>
+        {% endfor %}
+      </div>
+      <div class="county-grid">
+        {% for article in county_articles %}
+          {% include "includes/article_card.html" with article=article show_excerpt=False %}
+        {% empty %}
+          <p class="empty-state">No county stories have been published yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <div>
+          <h2 class="section__title">Video News</h2>
+          <p class="section__subtitle">Interviews, community reports and political discussions.</p>
+        </div>
+        <a href="{% url 'news:videos' %}" class="section__link">Watch more →</a>
+      </div>
+      {% if featured_video %}
+      <div class="video-hero">
+        <a href="{% url 'news:video_detail' featured_video.id %}" class="video-thumb">
+          <img src="{{ featured_video.thumbnail }}" alt="{{ featured_video.title }}" loading="lazy" />
+          <span class="video-thumb__play"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></span></span>
+        </a>
+        <div class="video-list">
+          <div>
+            <span class="category-tag">Featured video</span>
+            <h3 class="video-featured-title">{{ featured_video.title }}</h3>
+            <p class="section__subtitle">{{ featured_video.description|truncatechars:160 }}</p>
+          </div>
+          {% for video in more_videos %}
+            <div class="video-list__item">
+              <a href="{% url 'news:video_detail' video.id %}" class="video-thumb">
+                <img src="{{ video.thumbnail }}" alt="{{ video.title }}" loading="lazy" />
+                <span class="video-thumb__play"><span><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span></span>
+              </a>
+              <div>
+                <h4><a href="{% url 'news:video_detail' video.id %}">{{ video.title }}</a></h4>
+                <div class="video-meta">{{ video.duration|default:"Video" }} · {{ video.views }} views</div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+        <p class="empty-state">Video reports will appear here once added in the newsroom.</p>
+      {% endif %}
+    </section>
+
+    <section class="section section--tint">
+      <div class="section__head">
+        <div>
+          <h2 class="section__title">Entertainment &amp; Sports</h2>
+          <p class="section__subtitle">Kenyan music, local talent, football, athletics and viral stories.</p>
+        </div>
+        <a href="{% url 'news:category' 'sports' %}" class="section__link">More sport →</a>
+      </div>
+      <div class="news-grid news-grid--two">
+        {% for article in entertainment_articles %}
+          {% include "includes/article_card.html" with article=article %}
+        {% endfor %}
+      </div>
+    </section>
+  </div>
+
+  <aside class="sidebar" aria-label="Sidebar">
+    <div class="widget newsletter-widget" id="newsletter">
+      <h3 class="widget__title">Daily Newsletter</h3>
+      <p>Get a concise digest of the day's top stories delivered to your inbox.</p>
+      <form method="post" action="{% url 'newsletter_subscribe' %}" class="newsletter-form">
+        {% csrf_token %}
+        <input type="hidden" name="source" value="homepage" />
+        <label class="sr-only" for="sidebar-email">Email address</label>
+        <input type="email" id="sidebar-email" name="email" class="form-input" placeholder="you@example.com" required style="margin-bottom:9px;" />
+        <button type="submit" class="btn">Subscribe free</button>
+      </form>
+      <p class="privacy-note">No spam. Unsubscribe any time.</p>
+    </div>
+
+    <div class="widget">
+      <h3 class="widget__title">Trending Now</h3>
+      <div class="rank-list">
+        {% for article in trending %}
+          <div class="rank-item">
+            <span class="rank-item__number">{{ forloop.counter }}</span>
+            <div>
+              <h4 class="rank-item__title"><a href="{{ article.get_absolute_url }}">{{ article.display_title|truncatechars:88 }}</a></h4>
+              <div class="rank-item__meta">{{ article.category.name }} · {{ article.views_count }} reads</div>
+            </div>
+          </div>
+        {% empty %}
+          <p class="empty-state">Trending stories appear after readers visit articles.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    {% ad_for_placement 'homepage_sidebar' %}
+
+    <div class="widget">
+      <h3 class="widget__title">Explore Kericho</h3>
+      <div class="topic-cloud">
+        {% for locality in county_localities %}
+          <a href="{{ locality.get_absolute_url }}" class="topic-chip">{{ locality.name }}</a>
+        {% empty %}
+          <a href="{% url 'news:category' 'kericho-news' %}" class="topic-chip">Kericho Town</a>
+        {% endfor %}
+        <a href="{% url 'news:category' 'business' %}" class="topic-chip">Tea industry</a>
+        <a href="{% url 'news:category' 'education' %}" class="topic-chip">Education</a>
+        <a href="{% url 'news:category' 'politics' %}" class="topic-chip">Politics</a>
+      </div>
+    </div>
+
+    <div class="widget">
+      <h3 class="widget__title">Follow Us</h3>
+      <p class="section__subtitle">Follow us for updates on your favourite platforms.</p>
+      <div class="social-row" style="gap:10px;">{% include "includes/social_icons.html" %}</div>
+    </div>
+  </aside>
+</div>
+{% endblock %}

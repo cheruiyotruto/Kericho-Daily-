@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top:42px;padding-bottom:50px;">
+  <div class="content-page" style="max-width:100%;">
+    <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><span>Advertise With Us</span></nav>
+    <h1>Advertise With Kericho Daily</h1>
+    <p class="content-page__intro">Reach readers across Kericho County, the South Rift, Kenya and the diaspora through premium, clearly labelled advertising.</p>
+    {% if show_demo_banner %}<div class="sample-notice"><strong>Demo note:</strong> Advertising inventory and statistics shown here are illustrative sample data.</div>{% endif %}
+    <div class="placement-grid">
+      {% for placement in placements %}
+        <div class="placement-card"><span>Placement {{ forloop.counter }}</span><h3>{{ placement.name }}</h3><p>{{ placement.detail }}</p></div>
+      {% endfor %}
+    </div>
+    <div class="dashboard-panel">
+      <h2 style="font-family:var(--font-display);font-size:1.5rem;">Campaign options</h2>
+      <div class="news-grid news-grid--two" style="margin-top:16px;">
+        <div><h3>Display &amp; programmatic</h3><p class="section__subtitle">Image banners, Google AdSense, Google Ad Manager and responsive mobile units with impression and click reporting.</p></div>
+        <div><h3>Sponsorships</h3><p class="section__subtitle">Sponsored articles, business promotions, featured listings and sponsored social content — always labelled as sponsored.</p></div>
+      </div>
+      <a href="{% url 'news:contact' %}" class="btn btn--primary" style="margin-top:18px;">Request a media kit</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

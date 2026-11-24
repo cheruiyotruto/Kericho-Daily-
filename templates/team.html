@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top:42px;padding-bottom:50px;">
+  <div class="content-page" style="max-width:100%;">
+    <nav class="article-breadcrumb"><a href="{% url 'news:home' %}">Home</a><span>›</span><span>Editorial Team</span></nav>
+    <h1>{{ page.title }}</h1>
+    <p class="content-page__intro">{{ page.intro }}</p>
+    {% if show_demo_banner %}<div class="sample-notice"><strong>Sample profiles:</strong> These reporter identities are demonstration accounts, not real newsroom staff.</div>{% endif %}
+    <div class="team-grid">
+      {% for journalist in journalists %}
+        <article class="team-card">
+          <div class="author-avatar">{% if journalist.avatar %}<img src="{{ journalist.avatar.url }}" alt="" />{% else %}{{ journalist.display_name|slice:':1' }}{% endif %}</div>
+          <h3><a href="{{ journalist.get_absolute_url }}">{{ journalist.display_name }}</a></h3>
+          <span class="category-tag">{{ journalist.get_role_display }}</span>
+          <p>{{ journalist.bio|default:"Covers community and county stories."|truncatechars:100 }}</p>
+          <a href="{{ journalist.get_absolute_url }}" class="btn btn--outline btn--small">View stories</a>
+        </article>
+      {% empty %}<p class="empty-state">No journalist profiles have been added yet.</p>{% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}
