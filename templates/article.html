@@ -45,6 +45,9 @@
           <div class="article-byline__meta">Published {{ article.published_at|date:"d F Y, H:i" }} EAT · {{ article.reading_time }} min read · {{ article.views_count|intcomma }} reads</div>
         </div>
       </div>
+      {% if article.source_url %}
+      <p class="article-source">Source: <a href="{{ article.source_url }}" target="_blank" rel="noopener noreferrer">{{ article.source_name|default:"Original report" }}</a> · Headline and summary only; read the full report at the source.</p>
+      {% endif %}
     </header>
 
     {% if article.featured_image or article.featured_image_url %}

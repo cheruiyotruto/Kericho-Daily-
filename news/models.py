@@ -214,6 +214,10 @@ class Article(TimeStampedModel):
     reading_time = models.PositiveIntegerField(default=1, editable=False)
     is_sample = models.BooleanField(default=True)
 
+    # Attribution for headlines imported from external news sources
+    source_url = models.URLField(blank=True)
+    source_name = models.CharField(max_length=120, blank=True)
+
     # SEO metadata
     seo_title = models.CharField(max_length=160, blank=True)
     seo_description = models.CharField(max_length=320, blank=True)

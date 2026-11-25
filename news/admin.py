@@ -104,6 +104,7 @@ class ArticleAdmin(admin.ModelAdmin):
         ("Classification", {"fields": ("category", "localities", "tags", "author", "status", "published_at")}),
         ("Media", {"fields": ("featured_image", "featured_image_url", "image_preview", "image_caption", "image_credit")}),
         ("Flags", {"fields": ("is_featured", "is_breaking", "is_sponsored", "sponsor_name", "allow_comments", "is_sample")}),
+        ("Source", {"classes": ("collapse",), "fields": ("source_name", "source_url")}),
         ("SEO", {"classes": ("collapse",), "fields": ("seo_title", "seo_description", "canonical_url", "focus_keyword")}),
         ("Metrics", {"classes": ("collapse",), "fields": ("views_count", "reading_time", "created_at", "updated_at")}),
     )
