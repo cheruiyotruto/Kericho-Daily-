@@ -52,6 +52,20 @@ CATEGORY_KEYWORDS = {
     "opinion": ("opinion", "analysis", "commentary", "editorial"),
 }
 
+# Keep the preview focused on Kericho, Kenya and verified regional current affairs.
+RELEVANT_TERMS = (
+    "kenya", "kericho", "kipkelion", "belgut", "londiani", "litein",
+    "ainamoi", "bureti", "kabianga", "sigowet", "south rift", "nairobi",
+    "mombasa", "kisumu", "nakuru", "eldoret", "ruto", "raila", "wangari",
+    "county", "parliament", "senate", "assembly", "kcse", "police", "court",
+    "shilling", "tea", "sgr", "east africa", "african union",
+)
+PREFERRED_SOURCES = (
+    "kenya news agency", "business daily", "ntv kenya", "tuko news",
+    "the union star", "daily nation", "the standard", "citizen tv", "k24",
+    "the star", "dawan africa", "capital news", "people daily", "nation africa",
+)
+
 TAG_STRIP = re.compile(r"<[^>]+>")
 SPACE = re.compile(r"\s+")
 
@@ -90,6 +104,11 @@ class Command(BaseCommand):
                     self.stderr.write(f"Feed unavailable ({label}): {exc}")
 
         cutoff = timezone.now() - timedelta(days=options["max_age_days"])
+
+        # This command owns the preview ticker. Remove seeded demo alerts and
+        # earlier imports so only current headlines can appear as breaking news.
+        BreakingNews.objects.all().delete()
+
         clean = []
         seen = set()
         for item in items:
@@ -99,6 +118,8 @@ class Command(BaseCommand):
             if "\ufffd" in item["title"] or item["title"].count("??") > 2:
                 continue
             if item["source_name"].lower() == "facebook":
+                continue
+            if not self.is_relevant(item["title"], item["source_name"]):
                 continue
             if not item["link"] or item["link"] in seen:
                 continue
@@ -156,8 +177,7 @@ class Command(BaseCommand):
                     article.localities.add(locality)
             imported.append(article)
 
-        # Refresh the breaking-news ticker with only the newest imported headlines.
-        BreakingNews.objects.filter(link__startswith="https://news.google.com/").delete()
+        # Add the newest imported headlines to the cleared ticker.
         for priority, article in enumerate(imported[:6], start=1):
             BreakingNews.objects.create(
                 headline=f"{article.title} — {article.source_name}",
@@ -225,6 +245,14 @@ class Command(BaseCommand):
                 }
             )
         return parsed
+
+    @staticmethod
+    def is_relevant(title, source_name):
+        lowered_title = title.lower()
+        lowered_source = (source_name or "").lower()
+        if any(term in lowered_title for term in RELEVANT_TERMS):
+            return True
+        return any(source in lowered_source for source in PREFERRED_SOURCES)
 
     @staticmethod
     def categorise(title):

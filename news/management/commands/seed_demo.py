@@ -268,7 +268,7 @@ class Command(BaseCommand):
             "SAMPLE DEMO: Readers can enable breaking-news notifications with consent.",
         ]
         for priority, headline in enumerate(ticker_items, start=1):
-            BreakingNews.objects.get_or_create(headline=headline, defaults={"is_active": True, "priority": priority})
+            BreakingNews.objects.get_or_create(headline=headline, defaults={"is_active": False, "priority": priority})
 
         self.stdout.write("Creating video entries...")
         videos = [
